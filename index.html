@@ -31,7 +31,8 @@ html
         @keyframes blink { 50% { opacity: 0; } }
         #digital-clock.blinking-active .clock-separator:first-of-type { -webkit-animation: blink 1s step-end infinite; animation: blink 1s step-end infinite; }
         .clock-seconds { display: none; }
-        #digital-clock.seconds-visible .clock-seconds { display: contents; }
+        /* SỬA LỖI: Dùng display: inline-block để tương thích trình duyệt cũ */
+        #digital-clock.seconds-visible .clock-seconds { display: inline-block; }
         .date-container { font-size: 2.5vmin; font-weight: 400; text-align: center; margin: 1rem 0; }
         .date-container.hidden { display: none; }
         .date-container p { margin: 1vmin 0; }
@@ -42,7 +43,6 @@ html
         #weather-temp { font-weight: 700; }
         #weather-desc { color: #ccc; }
         #weather-location { font-weight: bold; color: #2980b9; }
-        /* CẢI TIẾN: Thêm nút để nhập vị trí thủ công */
         #manual-weather-btn { cursor: pointer; color: #2980b9; text-decoration: underline; margin-left: 1rem; font-size: 2vmin;}
         #calendar-container { background-color: #1a1a1a; padding: 1.5vmin; border-radius: 1vmin; width: 100%; max-width: 50vmin; box-sizing: border-box; margin: 0 auto; }
         #calendar-container.hidden { display: none; }
@@ -67,10 +67,8 @@ html
         #slideshow-image { object-fit: cover; border-radius: 0.8rem; opacity: 1; -webkit-transition: opacity 1.5s ease-in-out; transition: opacity 1.5s ease-in-out; }
         #initial-message { display: table; color: #888; }
         #initial-message p { display: table-cell; vertical-align: middle; text-align: center; font-size: 1.2rem; }
-        .image-controls { position: absolute; bottom: 1.5rem; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); z-index: 10; display: flex; align-items: center; }
+        .image-controls { position: absolute; bottom: 1.5rem; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); z-index: 10; }
         .control-btn { background: rgba(0,0,0,0.6); border: 1px solid #555; color: #fff; cursor: pointer; font-size: 1rem; padding: 0.6rem 1.2rem; border-radius: 1.2rem; margin: 0 0.3rem; }
-        /* CẢI TIẾN: Kiểu cho nút điều khiển slideshow */
-        #prev-image-btn, #next-image-btn { font-size: 1.5rem; padding: 0.3rem 0.8rem; display: none; }
         #settings-container { position: absolute; top: 1.5rem; right: 1.5rem; z-index: 100; }
         #settings-toggle { cursor: pointer; width: 2.5rem; height: 2.5rem; background: none; border: none; padding: 0; }
         #settings-panel { display: block; position: absolute; top: 3.5rem; right: 0; background: #1e1e1e; border: 1px solid #444; border-radius: 0.5rem; padding: 0.7rem; width: 15rem; opacity: 0; -webkit-transform: translateY(-10px); transform: translateY(-10px); pointer-events: none; -webkit-transition: opacity 0.2s ease, -webkit-transform 0.2s ease; transition: opacity 0.2s ease, transform 0.2s ease; }
@@ -106,7 +104,6 @@ html
                     <div class="clock-seconds"><div class="clock-separator">:</div><div class="clock-segment"><span id="clock-seconds">00</span></div></div>
                 </div>
                 <div class="date-container" id="date-container"><p id="gregorian-date"></p><p id="lunar-date"></p><p id="lunar-event"></p></div>
-                <!-- CẢI TIẾN: Thêm nút nhập vị trí thủ công -->
                 <div id="weather-container">
                     <span id="weather-location"></span><span id="weather-icon"></span><span id="weather-temp"></span><span id="weather-desc">Đang tải thời tiết...</span>
                     <span id="manual-weather-btn" title="Nhập vị trí thủ công">[Nhập]</span>
@@ -120,14 +117,7 @@ html
         <!-- Cột trình chiếu -->
         <div class="slideshow-column">
              <img id="slideshow-image" src="" alt="Trình chiếu ảnh" style="display: none;"><div id="initial-message"><p>Vui lòng chọn ảnh để hiển thị</p></div>
-             <!-- CẢI TIẾN: Thêm nút điều khiển slideshow -->
-             <div class="image-controls">
-                <button class="control-btn" id="prev-image-btn">&lt;</button>
-                <button class="control-btn" id="browse-local">Từ máy tính</button>
-                <button class="control-btn" id="browse-cloud">Từ URL</button>
-                <button class="control-btn" id="browse-online">Nguồn ảnh đẹp</button>
-                <button class="control-btn" id="next-image-btn">&gt;</button>
-             </div>
+             <div class="image-controls"><button class="control-btn" id="browse-local">Từ máy tính</button><button class="control-btn" id="browse-cloud">Từ URL</button><button class="control-btn" id="browse-online">Nguồn ảnh đẹp</button></div>
             <input type="file" id="local-file-input" multiple accept="image/*" style="display: none;">
         </div>
     </div>
@@ -149,28 +139,14 @@ html
     function solarToLunar(dd,mm,yy){var LUNAR_INFO=[0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,0x06566,0xd4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b5a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,0x04970,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,0x0c960,0x0d954,0xd4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04bd7,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0];var CAN_STR=["Canh","Tân","Nhâm","Quý","Giáp","Ất","Bính","Đinh","Mậu","Kỷ"];var CHI_STR=["Thân","Dậu","Tuất","Hợi","Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi"];function getLunarMonthDays(y,m){return(LUNAR_INFO[y-1900]&(0x10000>>m))?30:29}function getLeapMonth(y){return LUNAR_INFO[y-1900]&0xf}function getLunarYearDays(y){var i,sum=348;for(i=0x8000;i>0x8;i>>=1)sum+=LUNAR_INFO[y-1900]&i?1:0;return sum+getLunarMonthDays(y,getLeapMonth(y))}var date=new Date(yy,mm-1,dd);var offset=Math.floor((date.getTime()-new Date(1900,0,31).getTime())/864e5);var day=offset;var lunarYear,lunarMonth,lunarDay,isLeap;var i,temp=0;for(i=1900;i<2101&&day>0;i++){temp=getLunarYearDays(i);day-=temp}if(day<0){day+=temp;i--}lunarYear=i;var leap=getLeapMonth(lunarYear);isLeap=false;for(i=1;i<13&&day>0;i++){if(leap>0&&i==leap+1&&!isLeap){--i;isLeap=true;temp=getLunarMonthDays(lunarYear,0)}else{temp=getLunarMonthDays(lunarYear,i)}if(isLeap&&i==leap+1)isLeap=false;day-=temp}if(day==0&&leap>0&&i==leap+1){if(isLeap){isLeap=false}else{isLeap=true;--i}}if(day<0){day+=temp;--i}lunarMonth=i;lunarDay=day+1;var monthNames=["","Giêng","Hai","Ba","Tư","Năm","Sáu","Bảy","Tám","Chín","Mười","Một","Chạp"];return{day:lunarDay,lunarMonth:lunarMonth,lunarYear:lunarYear,monthName:"tháng "+monthNames[lunarMonth]+(isLeap?" nhuận":""),yearName:"năm "+CAN_STR[(lunarYear-4)%10]+" "+CHI_STR[(lunarYear-4)%12],dayCanChi:"Ngày "+CAN_STR[(offset+4)%10]+" "+CHI_STR[(offset+0)%12]}}
     
     document.addEventListener("DOMContentLoaded", function() {
-        var els = { container: document.getElementById('main-container'), clock: document.getElementById('digital-clock'), clockHours: document.getElementById('clock-hours'), clockMinutes: document.getElementById('clock-minutes'), clockSeconds: document.getElementById('clock-seconds'), dateContainer: document.getElementById('date-container'), gregorianDate: document.getElementById('gregorian-date'), lunarDate: document.getElementById('lunar-date'), lunarEvent: document.getElementById('lunar-event'), weatherLocation: document.getElementById('weather-location'), weatherIcon: document.getElementById('weather-icon'), weatherTemp: document.getElementById('weather-temp'), weatherDesc: document.getElementById('weather-desc'), calendarContainer: document.getElementById('calendar-container'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), settingsToggle: document.getElementById('settings-toggle'), settingsPanel: document.getElementById('settings-panel'), fullscreenBtn: document.getElementById('fullscreen-toggle'), layoutToggleBtn: document.getElementById('layout-toggle'), slideshowToggleBtn: document.getElementById('slideshow-toggle'), blinkBtn: document.getElementById('blink-toggle'), secondsBtn: document.getElementById('seconds-toggle'), dateToggleBtn: document.getElementById('date-toggle'), calendarToggleBtn: document.getElementById('calendar-toggle'), resetSettingsBtn: document.getElementById('reset-settings-btn'), slideshowImage: document.getElementById('slideshow-image'), initialMessage: document.getElementById('initial-message'), localFileInput: document.getElementById('local-file-input'), browseLocalBtn: document.getElementById('browse-local'), browseCloudBtn: document.getElementById('browse-cloud'), browseOnlineBtn: document.getElementById('browse-online'), urlDialogOverlay: document.getElementById('url-dialog-overlay'), urlTextarea: document.getElementById('url-textarea'), urlAddBtn: document.getElementById('url-add-btn'), urlCancelBtn: document.getElementById('url-cancel-btn'), sourceDialogOverlay: document.getElementById('source-dialog-overlay'), sourceButtonsContainer: document.getElementById('source-buttons'), sourceCancelBtn: document.getElementById('source-cancel-btn'), manualWeatherBtn: document.getElementById('manual-weather-btn'), prevImageBtn: document.getElementById('prev-image-btn'), nextImageBtn: document.getElementById('next-image-btn'), photoGuideBtn: document.getElementById('photo-guide'), alwaysOnGuideBtn: document.getElementById('always-on-guide'), addToHomeGuideBtn: document.getElementById('add-to-home-guide') };
+        var els = { container: document.getElementById('main-container'), clock: document.getElementById('digital-clock'), clockHours: document.getElementById('clock-hours'), clockMinutes: document.getElementById('clock-minutes'), clockSeconds: document.getElementById('clock-seconds'), dateContainer: document.getElementById('date-container'), gregorianDate: document.getElementById('gregorian-date'), lunarDate: document.getElementById('lunar-date'), lunarEvent: document.getElementById('lunar-event'), weatherLocation: document.getElementById('weather-location'), weatherIcon: document.getElementById('weather-icon'), weatherTemp: document.getElementById('weather-temp'), weatherDesc: document.getElementById('weather-desc'), calendarContainer: document.getElementById('calendar-container'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), settingsToggle: document.getElementById('settings-toggle'), settingsPanel: document.getElementById('settings-panel'), fullscreenBtn: document.getElementById('fullscreen-toggle'), layoutToggleBtn: document.getElementById('layout-toggle'), slideshowToggleBtn: document.getElementById('slideshow-toggle'), blinkBtn: document.getElementById('blink-toggle'), secondsBtn: document.getElementById('seconds-toggle'), dateToggleBtn: document.getElementById('date-toggle'), calendarToggleBtn: document.getElementById('calendar-toggle'), resetSettingsBtn: document.getElementById('reset-settings-btn'), slideshowImage: document.getElementById('slideshow-image'), initialMessage: document.getElementById('initial-message'), localFileInput: document.getElementById('local-file-input'), browseLocalBtn: document.getElementById('browse-local'), browseCloudBtn: document.getElementById('browse-cloud'), browseOnlineBtn: document.getElementById('browse-online'), urlDialogOverlay: document.getElementById('url-dialog-overlay'), urlTextarea: document.getElementById('url-textarea'), urlAddBtn: document.getElementById('url-add-btn'), urlCancelBtn: document.getElementById('url-cancel-btn'), sourceDialogOverlay: document.getElementById('source-dialog-overlay'), sourceButtonsContainer: document.getElementById('source-buttons'), sourceCancelBtn: document.getElementById('source-cancel-btn'), manualWeatherBtn: document.getElementById('manual-weather-btn'), photoGuideBtn: document.getElementById('photo-guide'), alwaysOnGuideBtn: document.getElementById('always-on-guide'), addToHomeGuideBtn: document.getElementById('add-to-home-guide') };
         var images = [], currentImageIndex = 0, slideshowInterval = null, currentDateForCalendar = new Date(), lastTime = {}, isMonthView = false;
         var settings = { layoutVertical: false, slideshowHidden: false, secondsVisible: false, blinkEnabled: true, dateHidden: false, calendarHidden: false };
-        // SỬA LỖI: Thay thế nguồn ảnh không ổn định bằng Picsum Photos
-        var IMAGE_SOURCES = { 'Thiên nhiên': 'nature', 'Thành phố': 'city', 'Kiến trúc': 'architecture', 'Động vật': 'animals', 'Công nghệ': 'technology', 'Trừu tượng': 'abstract' };
+        // SỬA LỖI: Quay lại nguồn ảnh Unsplash với các từ khóa
+        var IMAGE_SOURCES = { 'Thiên nhiên': 'nature,water,sky', 'Thành phố': 'city,street', 'Kiến trúc': 'architecture', 'Vũ trụ': 'space,galaxy,stars', 'Tối giản': 'minimal,minimalist', 'Công nghệ': 'technology,code' };
 
         function updateClock() { var now = new Date(); var h = ('0' + now.getHours()).slice(-2); var m = ('0' + now.getMinutes()).slice(-2); var s = ('0' + now.getSeconds()).slice(-2); if (lastTime.h !== h) { els.clockHours.textContent = h; lastTime.h = h; } if (lastTime.m !== m) { els.clockMinutes.textContent = m; lastTime.m = m; } if (settings.secondsVisible) { els.clockSeconds.textContent = s; } }
-        
-        // CẢI TIẾN: Bổ sung các sự kiện âm lịch
-        function getLunarEvents(lunar) {
-            var events = { '1/1': "Tết Nguyên Đán", '10/3': "Giỗ Tổ Hùng Vương", '15/1': "Rằm tháng Giêng", '15/7': "Rằm tháng Bảy", '15/8': "Tết Trung Thu", '23/12': "Ông Táo về trời" };
-            var key = lunar.day + '/' + lunar.lunarMonth;
-            if (events[key]) return events[key];
-
-            var daysInMonth = getLunarMonthDays(lunar.lunarYear, lunar.lunarMonth);
-            if (lunar.day === 1) return "Mồng 1";
-            if (lunar.day === 15) return "Ngày Rằm";
-            if (lunar.day === daysInMonth) return "Ngày cuối tháng";
-            return "";
-        }
-        
-        function updateMainDate() { var now = new Date(); var dayOfWeek = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"]; els.gregorianDate.innerText = dayOfWeek[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear(); var lunar = solarToLunar(now.getDate(), now.getMonth() + 1, now.getFullYear()); els.lunarDate.innerText = lunar.dayCanChi + ', ' + lunar.day + ' ' + lunar.monthName; els.lunarEvent.innerText = getLunarEvents(lunar); }
+        function updateMainDate() { var now = new Date(); var dayOfWeek = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"]; els.gregorianDate.innerText = dayOfWeek[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear(); var lunar = solarToLunar(now.getDate(), now.getMonth() + 1, now.getFullYear()); els.lunarDate.innerText = lunar.dayCanChi + ', ' + lunar.day + ' ' + lunar.monthName; var eventText = ""; var daysInMonth = getLunarMonthDays(lunar.lunarYear, lunar.lunarMonth); if (lunar.day === 1) eventText = "Mồng 1"; else if (lunar.day === 15) eventText = "Ngày Rằm"; else if (lunar.day === daysInMonth) eventText = "Ngày cuối tháng"; els.lunarEvent.innerText = eventText; }
         
         function makeRequest(url, callback) {
             var xhr = new XMLHttpRequest();
@@ -185,35 +161,28 @@ html
         }
         function getWeatherInfo(code) { var weatherMap = { 0:{d:"Trời quang",i:"☀️"},1:{d:"Gần quang",i:"🌤️"},2:{d:"Mây rải rác",i:"🌥️"},3:{d:"Nhiều mây",i:"☁️"},45:{d:"Sương mù",i:"🌫️"},48:{d:"Sương mù lạnh",i:"🌫️"},51:{d:"Mưa phùn nhẹ",i:"🌦️"},53:{d:"Mưa phùn",i:"🌦️"},55:{d:"Mưa phùn dày",i:"🌦️"},61:{d:"Mưa nhẹ",i:"🌧️"},63:{d:"Mưa vừa",i:"🌧️"},65:{d:"Mưa lớn",i:"🌧️"},80:{d:"Mưa rào nhẹ",i:"🌧️"},81:{d:"Mưa rào",i:"🌧️"},82:{d:"Mưa rào lớn",i:"🌧️"},95:{d:"Dông",i:"⚡"}}; var info = weatherMap[code] || {d:"Không xác định",i:"🤷"}; return { desc: info.d, icon: info.i }; }
         
-        // SỬA LỖI & CẢI TIẾN: Tái cấu trúc hàm thời tiết
-        function fetchWeatherByCoords(lat, lon) {
-            var locationAPI = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + lat + "&lon=" + lon + "&accept-language=vi";
-            var weatherAPI = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code";
-            
-            makeRequest(locationAPI, function(err, data) {
-                if (data && (data.address.city || data.address.state || data.address.country)) {
-                    var locationName = data.address.city || data.address.state || data.address.country;
-                    els.weatherLocation.textContent = locationName;
-                    localStorage.setItem('weatherLocation', JSON.stringify({type: 'coords', lat: lat, lon: lon}));
+        // SỬA LỖI: Khôi phục lại logic thời tiết gốc, ổn định
+        function fetchLocationAndWeather(lat, lon) {
+            localStorage.setItem('weatherCoords', JSON.stringify({lat: lat, lon: lon}));
+            makeRequest("https://geocoding-api.open-meteo.com/v1/search?latitude=" + lat + "&longitude=" + lon + "&count=1&language=vi&format=json", function(err, data) {
+                if (data && data.results && data.results.length > 0) {
+                    els.weatherLocation.textContent = data.results[0].name;
                 }
             });
-            makeRequest(weatherAPI, function(err, data) {
+            makeRequest("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code", function(err, data) {
                 if (err) { els.weatherDesc.textContent = "Lỗi tải thời tiết"; return; }
                 if (data && data.current) { var temp = Math.round(data.current.temperature_2m); var weatherCode = data.current.weather_code; var weatherInfo = getWeatherInfo(weatherCode); els.weatherIcon.textContent = weatherInfo.icon; els.weatherTemp.textContent = temp + "°C"; els.weatherDesc.textContent = weatherInfo.desc; }
             });
         }
-
+        
         function fetchWeatherByCity(city) {
-            var geocodeAPI = "https://nominatim.openstreetmap.org/search?city=" + encodeURIComponent(city) + "&format=json&accept-language=vi&limit=1";
-            makeRequest(geocodeAPI, function(err, data) {
-                if (err || !data || data.length === 0) {
+            makeRequest("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=1&language=vi&format=json", function(err, data) {
+                 if (err || !data || !data.results || data.results.length === 0) {
                     els.weatherDesc.textContent = "Không tìm thấy thành phố.";
                     return;
                 }
-                var location = data[0];
-                els.weatherLocation.textContent = location.display_name.split(',')[0];
-                localStorage.setItem('weatherLocation', JSON.stringify({type: 'city', name: city}));
-                fetchWeatherByCoords(location.lat, location.lon);
+                var loc = data.results[0];
+                fetchLocationAndWeather(loc.latitude, loc.longitude);
             });
         }
 
@@ -226,31 +195,26 @@ html
         }
 
         function loadWeather() {
-            var savedLocation = localStorage.getItem('weatherLocation');
-            if (savedLocation) {
+            var savedCoords = localStorage.getItem('weatherCoords');
+            if (savedCoords) {
                 try {
-                    var loc = JSON.parse(savedLocation);
-                    if (loc.type === 'coords') {
-                        fetchWeatherByCoords(loc.lat, loc.lon);
-                    } else if (loc.type === 'city') {
-                        fetchWeatherByCity(loc.name);
-                    }
+                    var coords = JSON.parse(savedCoords);
+                    fetchLocationAndWeather(coords.lat, coords.lon);
                     return;
-                } catch(e) { /* Fallback to geolocation */ }
+                } catch(e) { localStorage.removeItem('weatherCoords'); }
             }
-
-            if (navigator.geolocation) {
+            if (navigator.geolocation) { 
                 navigator.geolocation.getCurrentPosition(
-                    function(pos) { fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude); },
-                    function(err) { els.weatherDesc.textContent = "Hãy cấp quyền vị trí hoặc nhập thủ công."; }
-                );
-            } else { els.weatherDesc.textContent = "Định vị không được hỗ trợ."; }
+                    function(pos) { fetchLocationAndWeather(pos.coords.latitude, pos.coords.longitude); }, 
+                    function(err) { els.weatherDesc.textContent = "Không thể lấy vị trí."; }
+                ); 
+            } else { els.weatherDesc.textContent = "Định vị không được hỗ trợ."; } 
         }
         
         function renderCalendar() { if (settings.layoutVertical || window.innerWidth <= 800) { isMonthView = false; generateWeeklyCalendar(currentDateForCalendar); } else { isMonthView = true; generateMonthlyCalendar(currentDateForCalendar); } }
         function stopSlideshow() { if (slideshowInterval) { clearInterval(slideshowInterval); slideshowInterval = null; } }
-        function changeImage(direction) { if (images.length === 0) return; els.slideshowImage.style.opacity = 0; setTimeout(function() { if (direction === 'next') { currentImageIndex = (currentImageIndex + 1) % images.length; } else if (direction === 'prev') { currentImageIndex = (currentImageIndex - 1 + images.length) % images.length; } els.slideshowImage.src = images[currentImageIndex]; els.slideshowImage.style.opacity = 1; }, 1500); }
-        function startSlideshow() { stopSlideshow(); if (images.length === 0) { els.slideshowImage.style.display = 'none'; els.initialMessage.style.display = 'table'; els.prevImageBtn.style.display = 'none'; els.nextImageBtn.style.display = 'none'; return; } els.initialMessage.style.display = 'none'; els.slideshowImage.style.display = 'block'; if (currentImageIndex >= images.length) currentImageIndex = 0; els.slideshowImage.src = images[currentImageIndex]; els.slideshowImage.style.opacity = 1; if (images.length > 1) { slideshowInterval = setInterval(function(){ changeImage('next'); }, 7000); els.prevImageBtn.style.display = 'block'; els.nextImageBtn.style.display = 'block'; } else { els.prevImageBtn.style.display = 'none'; els.nextImageBtn.style.display = 'none'; } }
+        function changeImage() { if (images.length <= 1) return; els.slideshowImage.style.opacity = 0; setTimeout(function() { currentImageIndex = (currentImageIndex + 1) % images.length; els.slideshowImage.src = images[currentImageIndex]; els.slideshowImage.style.opacity = 1; }, 1500); }
+        function startSlideshow() { stopSlideshow(); if (images.length === 0) { els.slideshowImage.style.display = 'none'; els.initialMessage.style.display = 'table'; return; } els.initialMessage.style.display = 'none'; els.slideshowImage.style.display = 'block'; currentImageIndex = 0; els.slideshowImage.src = images[currentImageIndex]; els.slideshowImage.style.opacity = 1; if (images.length > 1) { slideshowInterval = setInterval(changeImage, 7000); } }
         
         function saveSettings() { try { localStorage.setItem('dashboardSettings', JSON.stringify(settings)); } catch (e) { console.error("Could not save settings:", e); } }
         function applySettings() {
@@ -260,39 +224,34 @@ html
             els.dateContainer.classList[settings.dateHidden ? 'add' : 'remove']('hidden'); els.dateToggleBtn.textContent = settings.dateHidden ? 'Hiện Ngày tháng' : 'Ẩn Ngày tháng';
             els.calendarContainer.classList[settings.calendarHidden ? 'add' : 'remove']('hidden'); els.calendarToggleBtn.textContent = settings.calendarHidden ? 'Hiện Lịch' : 'Ẩn Lịch';
             
-            // SỬA LỖI: Logic bật/tắt nháy giây được tách biệt
+            // SỬA LỖI: Khôi phục logic nháy giây chính xác
             els.blinkBtn.textContent = settings.blinkEnabled ? 'Tắt nháy giây' : 'Bật nháy giây';
             if (settings.blinkEnabled && !settings.secondsVisible) {
-                 els.clock.classList.add('blinking-active');
+                els.clock.classList.add('blinking-active');
             } else {
-                 els.clock.classList.remove('blinking-active');
+                els.clock.classList.remove('blinking-active');
             }
             renderCalendar();
         }
         function loadSettings() { try { var savedSettings = localStorage.getItem('dashboardSettings'); if (savedSettings) { settings = JSON.parse(savedSettings); } } catch (e) { console.error("Could not load settings:", e); } applySettings(); }
         
-        // CẢI TIẾN: Lưu và tải danh sách ảnh
-        function saveImages() { try { localStorage.setItem('dashboardImages', JSON.stringify(images.filter(function(url){ return !url.startsWith('blob:'); }))); } catch(e) { console.error("Could not save images:", e); } }
-        function loadImages() { try { var savedImages = localStorage.getItem('dashboardImages'); if (savedImages) { images = JSON.parse(savedImages); startSlideshow(); } } catch(e) { console.error("Could not load images:", e); } }
-
         function populateSourceDialog() {
             els.sourceButtonsContainer.innerHTML = '';
             for (var name in IMAGE_SOURCES) {
                 if (IMAGE_SOURCES.hasOwnProperty(name)) {
-                    (function(n) {
+                    (function(n, k) {
                         var btn = document.createElement('button');
                         btn.className = 'source-btn';
                         btn.textContent = n;
                         btn.addEventListener('click', function() {
-                            // SỬA LỖI: Sử dụng Picsum Photos
-                            var randomImageUrl = 'https://picsum.photos/1920/1080?random&t=' + Math.random();
+                            // SỬA LỖI: Quay lại Unsplash với cơ chế chống cache
+                            var randomImageUrl = 'https://source.unsplash.com/1920x1080/?' + k + '&sig=' + Math.random();
                             images = [randomImageUrl];
-                            saveImages();
                             startSlideshow();
                             els.sourceDialogOverlay.style.display = 'none';
                         });
                         els.sourceButtonsContainer.appendChild(btn);
-                    })(name);
+                    })(name, IMAGE_SOURCES[name]);
                 }
             }
         }
@@ -311,27 +270,19 @@ html
         els.blinkBtn.addEventListener('click', function() { settings.blinkEnabled = !settings.blinkEnabled; saveSettings(); applySettings(); });
         els.dateToggleBtn.addEventListener('click', function() { settings.dateHidden = !settings.dateHidden; saveSettings(); applySettings(); });
         els.calendarToggleBtn.addEventListener('click', function() { settings.calendarHidden = !settings.calendarHidden; saveSettings(); applySettings(); });
-        els.resetSettingsBtn.addEventListener('click', function() { if (confirm('Bạn có chắc muốn đặt lại tất cả cài đặt (trừ danh sách ảnh)?')) { localStorage.removeItem('dashboardSettings'); localStorage.removeItem('weatherLocation'); window.location.reload(); } });
+        els.resetSettingsBtn.addEventListener('click', function() { if (confirm('Bạn có chắc muốn đặt lại tất cả cài đặt?')) { localStorage.removeItem('dashboardSettings'); localStorage.removeItem('weatherCoords'); window.location.reload(); } });
         els.browseLocalBtn.addEventListener('click', function() { els.localFileInput.click(); });
         els.browseCloudBtn.addEventListener('click', function() { els.urlDialogOverlay.style.display = 'block'; });
         els.browseOnlineBtn.addEventListener('click', function() { els.sourceDialogOverlay.style.display = 'block'; });
         els.urlCancelBtn.addEventListener('click', function() { els.urlDialogOverlay.style.display = 'none'; });
         els.sourceCancelBtn.addEventListener('click', function() { els.sourceDialogOverlay.style.display = 'none'; });
-        els.urlAddBtn.addEventListener('click', function() { var urls = els.urlTextarea.value.split('\n').filter(function(url) { return url.trim() !== ''; }); if (urls.length > 0) { images = images.concat(urls); saveImages(); startSlideshow(); } els.urlTextarea.value = ''; els.urlDialogOverlay.style.display = 'none'; });
+        els.urlAddBtn.addEventListener('click', function() { var urls = els.urlTextarea.value.split('\n').filter(function(url) { return url.trim() !== ''; }); if (urls.length > 0) { images = images.concat(urls); startSlideshow(); } els.urlTextarea.value = ''; els.urlDialogOverlay.style.display = 'none'; });
         els.localFileInput.addEventListener('change', function(event) { var files = event.target.files; if (!files || files.length === 0) return; images = []; for (var i = 0; i < files.length; i++) { if (window.URL && window.URL.createObjectURL) { images.push(window.URL.createObjectURL(files[i])); } } startSlideshow(); els.localFileInput.value = ''; });
-        els.slideshowImage.onerror = function() { console.warn("Lỗi tải ảnh:", images[currentImageIndex]); images.splice(currentImageIndex, 1); if (images.length > 0) { changeImage(); } else { startSlideshow(); } saveImages(); };
+        els.slideshowImage.onerror = function() { console.warn("Lỗi tải ảnh:", images[currentImageIndex]); images.splice(currentImageIndex, 1); if (images.length > 0) { currentImageIndex = currentImageIndex % images.length; changeImage(true); } else { startSlideshow(); } };
         els.manualWeatherBtn.addEventListener('click', promptForLocation);
-        els.nextImageBtn.addEventListener('click', function() { stopSlideshow(); changeImage('next'); });
-        els.prevImageBtn.addEventListener('click', function() { stopSlideshow(); changeImage('prev'); });
-
-        // CẢI TIẾN: Hướng dẫn thực tế
-        els.photoGuideBtn.addEventListener('click', function() { alert("HD LẤY LINK ẢNH:\n\n1. Tìm ảnh trên Google Images, Imgur, Facebook...\n2. Bấm chuột phải vào ảnh (hoặc giữ tay trên điện thoại).\n3. Chọn 'Sao chép địa chỉ hình ảnh' (Copy Image Address).\n4. Dán link vào ô 'Từ URL'.\n\nLưu ý: Link ảnh thường kết thúc bằng .jpg, .jpeg, .png, .gif, .webp."); });
-        els.alwaysOnGuideBtn.addEventListener('click', function() { alert("HD GIỮ MÀN HÌNH BẬT:\n\n- Android: Vào Cài đặt -> Màn hình -> Thời gian sáng màn hình -> Chọn mức cao nhất.\n- iOS/iPadOS: Vào Cài đặt -> Màn hình & Độ sáng -> Tự động khoá -> Chọn 'Không'.\n- Windows: Vào Settings -> System -> Power & sleep -> 'When plugged in, turn off after' -> Chọn 'Never'.\n- macOS: Vào System Preferences -> Battery (hoặc Energy Saver) -> Power Adapter -> 'Turn display off after' -> Kéo thanh trượt sang 'Never'."); });
-        els.addToHomeGuideBtn.addEventListener('click', function() { alert("HD THÊM VÀO MÀN HÌNH CHÍNH:\n\n- Chrome/Safari (Mobile): Mở trang web này, bấm vào nút Chia sẻ (biểu tượng mũi tên đi lên) hoặc menu ba chấm, sau đó chọn 'Thêm vào màn hình chính' (Add to Home Screen).\n- PC/Mac (Chrome/Edge): Mở trang web, bấm vào menu ba chấm ở góc trên bên phải -> Công cụ khác -> Tạo lối tắt (More tools -> Create shortcut)."); });
         
         // --- Application Initialization ---
         loadSettings(); 
-        loadImages();
         updateClock(); 
         updateMainDate(); 
         loadWeather(); 
